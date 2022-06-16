@@ -8,10 +8,10 @@ import 'macos.dart' as mac;
 import 'windows.dart' as windows;
 import 'linux.dart' as linux;
 
-class OpenFile {
+class OpenAppFile {
   static const MethodChannel _channel = const MethodChannel('open_app_file');
 
-  OpenFile._();
+  OpenAppFile._();
 
   ///linuxDesktopName like 'xdg'/'gnome'
   static Future<OpenResult> open(String? filePath,

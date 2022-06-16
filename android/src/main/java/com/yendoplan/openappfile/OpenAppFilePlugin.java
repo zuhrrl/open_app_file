@@ -41,7 +41,7 @@ import java.util.Map;
 
 
 /**
- * OpenFilePlugin
+ * OpenAppFilePlugin
  */
 public class OpenAppFilePlugin implements MethodCallHandler
         , FlutterPlugin
@@ -70,7 +70,7 @@ public class OpenAppFilePlugin implements MethodCallHandler
 
     @Deprecated
     public static void registerWith(PluginRegistry.Registrar registrar) {
-        OpenFilePlugin plugin = new OpenFilePlugin();
+        OpenAppFilePlugin plugin = new OpenAppFilePlugin();
         plugin.activity = registrar.activity();
         plugin.context = registrar.context();
         plugin.channel = new MethodChannel(registrar.messenger(), "open_app_file");
