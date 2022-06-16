@@ -1,11 +1,11 @@
-#import "OpenFilePlugin.h"
+#import "OpenAppFilePlugin.h"
 
-@interface OpenFilePlugin ()<UIDocumentInteractionControllerDelegate>
+@interface OpenAppFilePlugin ()<UIDocumentInteractionControllerDelegate>
 @end
 
-static NSString *const CHANNEL_NAME = @"open_file";
+static NSString *const CHANNEL_NAME = @"open_app_file";
 
-@implementation OpenFilePlugin{
+@implementation OpenAppFilePlugin{
     FlutterResult _result;
     UIViewController *_viewController;
     UIDocumentInteractionController *_documentController;
@@ -18,7 +18,7 @@ static NSString *const CHANNEL_NAME = @"open_file";
                                      binaryMessenger:[registrar messenger]];
     UIViewController *viewController =
     [UIApplication sharedApplication].delegate.window.rootViewController;
-    OpenFilePlugin* instance = [[OpenFilePlugin alloc] initWithViewController:viewController];
+    OpenAppFilePlugin* instance = [[OpenAppFilePlugin alloc] initWithViewController:viewController];
     [registrar addMethodCallDelegate:instance channel:channel];
 }
 
@@ -31,7 +31,7 @@ static NSString *const CHANNEL_NAME = @"open_file";
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-    if ([@"open_file" isEqualToString:call.method]) {
+    if ([@"open_app_file" isEqualToString:call.method]) {
         _result = result;
         NSString *msg = call.arguments[@"file_path"];
         if(msg==nil){

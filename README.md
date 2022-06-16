@@ -1,25 +1,31 @@
 # open_file
-[![pub package](https://img.shields.io/pub/v/open_file.svg)](https://pub.dartlang.org/packages/open_file)
+[![pub package](https://img.shields.io/pub/v/open_app_file.svg)](https://pub.dartlang.org/packages/open_app_file)
 
 A plug-in that can call native APP to open files with string result in flutter, support iOS(DocumentInteraction) / android(intent) / PC(ffi) / web(dart:html)
 
+## Fork info
+
+The repository is forked from [open_file](https://github.com/crazecoder/open_file) by [crazecoder](https://github.com/crazecoder)
+
+This version:
+* does not include REQUEST_INSTALL_PACKAGES permission on Android, so cannot install .apk's
+* does not include READ_EXTERNAL_STORAGE permission on Android, so is made for opening files located in the app working directory
+* adds support of `.ics` file type (`text/calendar` MIME type)
+
 ## Usage
 
-To use this plugin, add [open_file](https://pub.dartlang.org/packages/open_file#-installing-tab-) as a dependency in your pubspec.yaml file.
+To use this plugin, add [open_file](https://pub.dartlang.org/packages/open_app_file#-installing-tab-) as a dependency in your pubspec.yaml file.
 ```yaml
 dependencies:
-  #androidx
-  open_file: ^lastVersion 
-  #support
-  #open_file: ^1.3.0
+  open_app_file: ^lastVersion
 ```
 
 ## Example
 ```dart
-import 'package:open_file/open_file.dart';
+import 'package:open_app_file/open_app_file.dart';
 
-OpenFile.open("/sdcard/example.txt");
-//OpenFile.open("/sdcard/example.txt", type: "text/plain", uti: "public.plain-text");
+OpenAppFile.open("/sdcard/example.txt");
+OpenAppFile.open("/sdcard/example.txt", type: "text/plain", uti: "public.plain-text");
 ```
 
 ## Support
@@ -31,7 +37,6 @@ OpenFile.open("/sdcard/example.txt");
             {".kml",    "application/vnd.google-earth.kml+xml"},
             {".gpx",    "application/gpx+xml"},
             {".csv",    "application/vnd.ms-excel"},
-            {".apk",    "application/vnd.android.package-archive"},
             {".asf",    "video/x-ms-asf"},
             {".avi",    "video/x-msvideo"},
             {".bin",    "application/octet-stream"},
@@ -51,6 +56,7 @@ OpenFile.open("/sdcard/example.txt");
             {".h",      "text/plain"},
             {".htm",    "text/html"},
             {".html",   "text/html"},
+            {".ics",    "text/calendar"},
             {".jar",    "application/java-archive"},
             {".java",   "text/plain"},
             {".jpeg",   "image/jpeg"},
@@ -167,6 +173,7 @@ subprojects {
             {".wav",    "com.microsoft.waveform-​audio"},
             {".wm",     "com.microsoft.windows-​media-wm"},
             {".wmv",    "com.microsoft.windows-​media-wmv"},
-            {".pdf",    "com.adobe.pdf"}
+            {".pdf",    "com.adobe.pdf"},
+            {".ics",    "text/calendar"}
 }
 ```

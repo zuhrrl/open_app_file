@@ -1,4 +1,4 @@
-group 'com.crazecoder.openfile'
+group 'com.yendoplan.openappfile'
 version '1.0-SNAPSHOT'
 
 buildscript {

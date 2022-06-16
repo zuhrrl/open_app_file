@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'package:open_file/src/common/open_result.dart';
+import 'package:open_app_file/src/common/open_result.dart';
 
 import 'web.dart' as web;
 
-class OpenFile {
-  OpenFile._();
+class OpenAppFile {
+  OpenAppFile._();
   static Future<OpenResult> open(String? filePath,
       {String? type,
         String? uti,

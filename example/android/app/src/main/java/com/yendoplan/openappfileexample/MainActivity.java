@@ -1,4 +1,4 @@
-package com.crazecoder.openfileexample;
+package com.yendoplan.openappfileexample;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

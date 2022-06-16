@@ -2,15 +2,15 @@
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
 #
 Pod::Spec.new do |s|
-  s.name             = 'open_file'
-  s.version          = '0.0.1'
-  s.summary          = 'A new Flutter project.'
+  s.name             = 'open_app_file'
+  s.version          = '3.2.2'
+  s.summary          = 'Open app file library.'
   s.description      = <<-DESC
-A new Flutter project.
+Open app file library.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/yendoplan/open_app_file'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Yendoplan' => 'it@yendoplan.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'

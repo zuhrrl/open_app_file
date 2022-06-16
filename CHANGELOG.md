@@ -1,3 +1,7 @@
+## 3.2.2
+* removed REQUEST_INSTALL_PACKAGES permission on Android
+* removed READ_EXTERNAL_STORAGE permission on Android
+* added support of `.ics` file type (`text/calendar` MIME type)
 ## 3.2.1
 * Add command parser before create system call [#144](https://github.com/crazecoder/open_file/issues/144) (thanks to [@mludovico](https://github.com/mludovico))
 * Fix startActivity() might have NPE issue with filePath on Android (thanks to [@AlexV525](https://github.com/AlexV525))

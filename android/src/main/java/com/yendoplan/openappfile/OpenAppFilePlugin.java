@@ -1,4 +1,4 @@
-package com.crazecoder.openfile;
+package com.yendoplan.openappfile;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -23,8 +23,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
 
-import com.crazecoder.openfile.utils.JsonUtil;
-import com.crazecoder.openfile.utils.MapUtil;
+import com.yendoplan.openappfile.utils.JsonUtil;
+import com.yendoplan.openappfile.utils.MapUtil;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
@@ -43,7 +43,7 @@ import java.util.Map;
 /**
  * OpenFilePlugin
  */
-public class OpenFilePlugin implements MethodCallHandler
+public class OpenAppFilePlugin implements MethodCallHandler
         , FlutterPlugin
         , ActivityAware
         , PluginRegistry.RequestPermissionsResultListener
@@ -67,14 +67,13 @@ public class OpenFilePlugin implements MethodCallHandler
 
     private static final int REQUEST_CODE = 33432;
     private static final int RESULT_CODE = 0x12;
-    private static final String TYPE_STRING_APK = "application/vnd.android.package-archive";
 
     @Deprecated
     public static void registerWith(PluginRegistry.Registrar registrar) {
         OpenFilePlugin plugin = new OpenFilePlugin();
         plugin.activity = registrar.activity();
         plugin.context = registrar.context();
-        plugin.channel = new MethodChannel(registrar.messenger(), "open_file");
+        plugin.channel = new MethodChannel(registrar.messenger(), "open_app_file");
         plugin.channel.setMethodCallHandler(plugin);
         registrar.addRequestPermissionsResultListener(plugin);
         registrar.addActivityResultListener(plugin);
@@ -88,7 +87,7 @@ public class OpenFilePlugin implements MethodCallHandler
     @SuppressLint("NewApi")
     public void onMethodCall(MethodCall call, @NonNull Result result) {
         isResultSubmitted = false;
-        if (call.method.equals("open_file")) {
+        if (call.method.equals("open_app_file")) {
             this.result = result;
             filePath = call.argument("file_path");
             if (call.hasArgument("type") && call.argument("type") != null) {
@@ -105,15 +104,6 @@ public class OpenFilePlugin implements MethodCallHandler
                         result(-3, "Permission denied: android.Manifest.permission.MANAGE_EXTERNAL_STORAGE");
                         return;
                     }
-                }
-                if (hasPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    if (TYPE_STRING_APK.equals(typeString)) {
-                        openApkFile();
-                        return;
-                    }
-                    startActivity();
-                } else {
-                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE);
                 }
             } else {
                 startActivity();
@@ -257,6 +247,8 @@ public class OpenFilePlugin implements MethodCallHandler
                 return "text/html";
             case "html":
                 return "text/html";
+            case "ics":
+                return "text/calendar";
             case "jar":
                 return "application/java-archive";
             case "java":
@@ -351,38 +343,6 @@ public class OpenFilePlugin implements MethodCallHandler
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private void openApkFile() {
-        if (!canInstallApk()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startInstallPermissionSettingActivity();
-            } else {
-                ActivityCompat.requestPermissions(activity,
-                        new String[]{Manifest.permission.REQUEST_INSTALL_PACKAGES}, REQUEST_CODE);
-            }
-        } else {
-            startActivity();
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private boolean canInstallApk() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return activity.getPackageManager().canRequestPackageInstalls();
-        }
-        return hasPermission(Manifest.permission.REQUEST_INSTALL_PACKAGES);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void startInstallPermissionSettingActivity() {
-        if (activity == null) {
-            return;
-        }
-        Uri packageURI = Uri.parse("package:" + activity.getPackageName());
-        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
-        activity.startActivityForResult(intent, RESULT_CODE);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] strings, int[] grantResults) {
         if (requestCode != REQUEST_CODE) return false;
@@ -399,19 +359,6 @@ public class OpenFilePlugin implements MethodCallHandler
         }
         startActivity();
         return true;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    public boolean onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == RESULT_CODE) {
-            if (canInstallApk()) {
-                startActivity();
-            } else {
-                result(-3, "Permission denied: " + Manifest.permission.REQUEST_INSTALL_PACKAGES);
-            }
-        }
-        return false;
     }
 
     private void result(int type, String message) {
@@ -443,7 +390,7 @@ public class OpenFilePlugin implements MethodCallHandler
     public void onAttachedToActivity(ActivityPluginBinding binding) {
         channel =
                 new MethodChannel(
-                        flutterPluginBinding.getBinaryMessenger(), "open_file");
+                        flutterPluginBinding.getBinaryMessenger(), "open_app_file");
         context = flutterPluginBinding.getApplicationContext();
         activity = binding.getActivity();
         channel.setMethodCallHandler(this);

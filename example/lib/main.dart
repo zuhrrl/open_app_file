@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:open_file/open_file.dart';
+import 'package:open_app_file/open_app_file.dart';
 
 void main() => runApp(MyApp());
 
@@ -15,7 +15,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> openFile() async {
     final filePath = '/storage/emulated/0/update.apk';
-    final result = await OpenFile.open(filePath);
+    final result = await OpenAppFile.open(filePath);
 
     setState(() {
       _openResult = "type=${result.type}  message=${result.message}";
