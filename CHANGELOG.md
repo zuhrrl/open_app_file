@@ -1,3 +1,5 @@
+## 3.2.2+4
+* fixing renaming and deprecation issues
 ## 3.2.2
 * removed REQUEST_INSTALL_PACKAGES permission on Android
 * removed READ_EXTERNAL_STORAGE permission on Android

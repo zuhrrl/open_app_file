@@ -45,9 +45,7 @@ import java.util.Map;
  */
 public class OpenAppFilePlugin implements MethodCallHandler
         , FlutterPlugin
-        , ActivityAware
-        , PluginRegistry.RequestPermissionsResultListener
-        , PluginRegistry.ActivityResultListener {
+        , ActivityAware {
     /**
      * Plugin registration.
      */
@@ -75,12 +73,6 @@ public class OpenAppFilePlugin implements MethodCallHandler
         plugin.context = registrar.context();
         plugin.channel = new MethodChannel(registrar.messenger(), "open_app_file");
         plugin.channel.setMethodCallHandler(plugin);
-        registrar.addRequestPermissionsResultListener(plugin);
-        registrar.addActivityResultListener(plugin);
-    }
-
-    private boolean hasPermission(String permission) {
-        return ContextCompat.checkSelfPermission(activity, permission) == PermissionChecker.PERMISSION_GRANTED;
     }
 
     @Override
@@ -169,15 +161,12 @@ public class OpenAppFilePlugin implements MethodCallHandler
             return;
         }
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        if (TYPE_STRING_APK.equals(typeString))
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        else
-            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             String packageName = context.getPackageName();
-            Uri uri = FileProvider.getUriForFile(context, packageName + ".fileProvider.com.crazecoder.openfile", new File(filePath));
+            Uri uri = FileProvider.getUriForFile(context, packageName + ".fileProvider.com.yendoplan.openappfile", new File(filePath));
             intent.setDataAndType(uri, typeString);
         } else {
             intent.setDataAndType(Uri.fromFile(new File(filePath)), typeString);
@@ -208,8 +197,6 @@ public class OpenAppFilePlugin implements MethodCallHandler
                 return "application/vnd.google-earth.kml+xml";
             case "gpx":
                 return "application/gpx+xml";
-            case "apk":
-                return TYPE_STRING_APK;
             case "asf":
                 return "video/x-ms-asf";
             case "avi":
@@ -342,25 +329,6 @@ public class OpenAppFilePlugin implements MethodCallHandler
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    public boolean onRequestPermissionsResult(int requestCode, String[] strings, int[] grantResults) {
-        if (requestCode != REQUEST_CODE) return false;
-        if (hasPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                && TYPE_STRING_APK.equals(typeString)) {
-            openApkFile();
-            return false;
-        }
-        for (String string : strings) {
-            if (!hasPermission(string)) {
-                result(-3, "Permission denied: " + string);
-                return false;
-            }
-        }
-        startActivity();
-        return true;
-    }
-
     private void result(int type, String message) {
         if (result != null && !isResultSubmitted) {
             Map<String, Object> map = MapUtil.createMap(type, message);
@@ -394,8 +362,6 @@ public class OpenAppFilePlugin implements MethodCallHandler
         context = flutterPluginBinding.getApplicationContext();
         activity = binding.getActivity();
         channel.setMethodCallHandler(this);
-        binding.addRequestPermissionsResultListener(this);
-        binding.addActivityResultListener(this);
     }
 
     @Override
