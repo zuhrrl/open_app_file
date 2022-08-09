@@ -38,7 +38,8 @@ import io.flutter.plugin.common.PluginRegistry;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * OpenAppFilePlugin
@@ -133,9 +134,18 @@ public class OpenAppFilePlugin implements MethodCallHandler
         }
 
         try {
-            String appDirCanonicalPath = new File(context.getApplicationInfo().dataDir).getCanonicalPath();
+            List<String> appDirs = new ArrayList<>();
+            appDirs.add(new File(context.getApplicationInfo().dataDir).getCanonicalPath());
+            appDirs.add(context.getExternalCacheDir().getCanonicalPath());
+            appDirs.add(context.getExternalFilesDir(null).getCanonicalPath());
+
             String fileCanonicalPath = new File(filePath).getCanonicalPath();
-            return !fileCanonicalPath.startsWith(appDirCanonicalPath);
+            for (String appDir: appDirs) {
+                if (appDir != null && fileCanonicalPath.startsWith(appDir)) {
+                    return false;
+                }
+            }
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
             return true;
