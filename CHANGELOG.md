@@ -1,3 +1,5 @@
+## 3.2.3
+* Don't throw exception when trying to read from external app directories on Android
 ## 3.2.2+4
 * fixing renaming and deprecation issues
 ## 3.2.2
