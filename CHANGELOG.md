@@ -1,3 +1,5 @@
+## 3.2.3
+* ffi version bump
 ## 3.2.2+4
 * fixing renaming and deprecation issues
 ## 3.2.2

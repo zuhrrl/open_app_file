@@ -1,12 +1,12 @@
 name: open_app_file
 description: A plug-in that can call native APP to open files with string result in flutter, support iOS(UTI) / android(intent) / PC(ffi) / web(dart:html)
-version: 3.2.2+4
+version: 3.2.3
 homepage: https://github.com/yendoplan/open_app_file
 
 dependencies:
   flutter:
     sdk: flutter
-  ffi: ^1.0.0
+  ffi: ^2.0.0
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
