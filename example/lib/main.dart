@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'dart:math';
+import 'package:path_provider/path_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -11,14 +15,26 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var _openResult = 'Unknown';
+  OpenResult? _openResult;
+
+  String randomString(int length) {
+    var r = Random();
+    return String.fromCharCodes(
+        List.generate(length, (index) => r.nextInt(26) + 89));
+  }
+
+  Future<String> _generateRandomTextFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File file = File('${directory.path}/test.txt');
+    await file.writeAsString(randomString(30));
+    return file.path;
+  }
 
   Future<void> openFile() async {
-    final filePath = '/storage/emulated/0/update.apk';
-    final result = await OpenAppFile.open(filePath);
+    final result = await OpenAppFile.open(await _generateRandomTextFile());
 
     setState(() {
-      _openResult = "type=${result.type}  message=${result.message}";
+      _openResult = result;
     });
   }
 
@@ -32,8 +48,10 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text('open result: $_openResult\n'),
+            children: [
+              Text(_openResult == null
+                  ? 'Result: none'
+                  : 'Result: type=${_openResult?.type} message=${_openResult?.message}'),
               TextButton(
                 child: Text('Tap to open file'),
                 onPressed: openFile,
