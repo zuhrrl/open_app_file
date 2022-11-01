@@ -1,5 +1,13 @@
+## 3.2.4
+* allowing all app-scoped paths (also external) on Android (credit [@joymyr](https://github.com/joymyr))
+* fixed .podspec file name (credit [@Fernandomr88](https://github.com/Fernandomr88) and [@ictsolved](https://github.com/ictsolved))
+* changed jcenter repo in favor of mavenCentral 
+* renamed provider paths file on Android to reduce probability of collision with other libraries
+* migrated to v2 embedding on Android
+* migrated Android code to Kotlin, cleaned up and refactored
+* updated example
 ## 3.2.3
-* Don't throw exception when trying to read from external app directories on Android
+* ffi version bump
 ## 3.2.2+4
 * fixing renaming and deprecation issues
 ## 3.2.2

@@ -20,6 +20,7 @@ rootProject.allprojects {
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 30
@@ -31,7 +32,8 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
-}
-dependencies{
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 }
