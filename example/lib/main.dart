@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart';
 
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -17,7 +18,17 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   OpenResult? _openResult;
 
-  String randomString(int length) {
+  Future<String> _downloadFile(String url, String filename) async {
+    String dir = (await getTemporaryDirectory()).path;
+    File targetFile = File('$dir/$filename');
+    final httpClient = Client();
+    var request = await httpClient.get(Uri.parse(url));
+    var response = request.bodyBytes;
+    await targetFile.writeAsBytes(response);
+    return targetFile.path;
+  }
+
+  String _generateRandomString(int length) {
     var r = Random();
     return String.fromCharCodes(
         List.generate(length, (index) => r.nextInt(26) + 89));
@@ -26,13 +37,12 @@ class _MyAppState extends State<MyApp> {
   Future<String> _generateRandomTextFile() async {
     final directory = await getApplicationDocumentsDirectory();
     final File file = File('${directory.path}/test.txt');
-    await file.writeAsString(randomString(30));
+    await file.writeAsString(_generateRandomString(30));
     return file.path;
   }
 
-  Future<void> openFile() async {
-    final result = await OpenAppFile.open(await _generateRandomTextFile());
-
+  Future<void> _openFile(String filePath) async {
+    final result = await OpenAppFile.open(filePath);
     setState(() {
       _openResult = result;
     });
@@ -49,12 +59,41 @@ class _MyAppState extends State<MyApp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(_openResult == null
-                  ? 'Result: none'
-                  : 'Result: type=${_openResult?.type} message=${_openResult?.message}'),
-              TextButton(
-                child: Text('Tap to open file'),
-                onPressed: openFile,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  _openResult == null
+                      ? 'Result: none'
+                      : 'Result: ${_openResult?.type}\nMessage: ${_openResult?.message}',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              ElevatedButton(
+                child: Text('Open generated file'),
+                onPressed: () async {
+                  _openFile(await _generateRandomTextFile());
+                },
+              ),
+              ElevatedButton(
+                child: Text('Download and open image'),
+                onPressed: () async {
+                  _openFile(await _downloadFile(
+                      'https://picsum.photos/200/300', 'test.jpg'));
+                },
+              ),
+              ElevatedButton(
+                child: Text('Download and open calendar event'),
+                onPressed: () async {
+                  _openFile(await _downloadFile(
+                      'https://raw.githubusercontent.com/yendoplan/open_app_file/master/example/files/test.ics',
+                      'test.ics'));
+                },
+              ),
+              ElevatedButton(
+                child: Text('Open non-existent file'),
+                onPressed: () async {
+                  _openFile('/sdcard/asdf.qwert');
+                },
               ),
             ],
           ),
