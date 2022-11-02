@@ -5,14 +5,12 @@ import 'web.dart' as web;
 
 class OpenAppFile {
   OpenAppFile._();
+
   static Future<OpenResult> open(String? filePath,
-      {String? type,
-        String? uti,
-        String linuxDesktopName = "xdg",
-        bool linuxByProcess = false}) async {
-    final _b = await web.open("file://$filePath");
-    return OpenResult(
-        type: _b ? ResultType.done : ResultType.error,
-        message: _b ? "done" : "there are some errors when open $filePath");
+      {String? mimeType, String? uti}) async {
+    final error = await web.open("file://$filePath");
+    return OpenResult(error == null ? ResultType.done : ResultType.error,
+        message:
+            error == null ? "done" : "Error opening file $filePath: $error");
   }
 }

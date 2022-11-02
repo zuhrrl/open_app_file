@@ -1,6 +1,6 @@
 name: open_app_file
-description: A plug-in that can call native APP to open files with string result in flutter, support iOS(UTI) / android(intent) / PC(ffi) / web(dart:html)
-version: 3.2.4
+description: A plugin to open files the app has permission to access with default system-provided applications.
+version: 4.0.0
 homepage: https://github.com/yendoplan/open_app_file
 
 dependencies:
@@ -20,3 +20,11 @@ flutter:
         pluginClass: OpenAppFilePlugin
       ios:
         pluginClass: OpenAppFilePlugin
+      web:
+        default_package: open_app_file
+      windows:
+        default_package: open_app_file
+      linux:
+        default_package: open_app_file
+      macos:
+        default_package: open_app_file

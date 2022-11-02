@@ -2,14 +2,14 @@ class OpenResult {
   ResultType type;
   String message;
 
-  OpenResult({this.type = ResultType.done, this.message = "done"});
+  OpenResult(this.type, {this.message = "done"});
 
   OpenResult.fromJson(Map<String, dynamic> json)
-      : message = json['message'],
-        type = _convertJson(json['type']);
+      : type = _typeFromCode(json['type']),
+        message = json['message'];
 
-  static ResultType _convertJson(int? jsonType) {
-    switch (jsonType) {
+  static ResultType _typeFromCode(int? typeCode) {
+    switch (typeCode) {
       case -1:
         return ResultType.noAppToOpen;
       case -2:

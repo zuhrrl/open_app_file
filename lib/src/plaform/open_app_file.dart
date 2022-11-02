@@ -13,49 +13,51 @@ class OpenAppFile {
 
   OpenAppFile._();
 
-  ///linuxDesktopName like 'xdg'/'gnome'
-  static Future<OpenResult> open(String? filePath,
-      {String? type,
-      String? uti,
-      String linuxDesktopName = "xdg",
-      bool linuxByProcess = false}) async {
-    assert(filePath != null);
-    if (!Platform.isIOS && !Platform.isAndroid) {
-      int _result;
-      var _windowsResult;
-      if (Platform.isMacOS) {
-        _result = mac.system(['open', '$filePath']);
-      } else if (Platform.isLinux) {
-        var filePathLinux = Uri.file(filePath!);
-        if (linuxByProcess) {
-          _result = Process.runSync('xdg-open', [filePathLinux.toString()])
-              .exitCode;
-        } else {
-          _result = linux.system(
-              ['$linuxDesktopName-open', filePathLinux.toString()]);
-        }
-      } else if (Platform.isWindows) {
-        _windowsResult = windows.shellExecute('open', filePath!);
-        _result = _windowsResult <= 32 ? 1 : 0;
-      } else {
-        _result = -1;
+  /// Attempt to open the file with system default viewer application.
+  /// In most cases there's no need to manually provide any type specification.
+  /// However, for some edge cases there's a way to affect how the system
+  /// builds the list of apps that can handle viewing/editing of the provided
+  /// file:
+  /// - [mimeType] overrides the type inferred from the file extension on
+  /// Android, has no effect on any other platform
+  /// - [uti] to provide UTI on iOS, no effect on any other platform
+  static Future<OpenResult> open(String filePath,
+      {String? mimeType, String? uti}) async {
+    if (Platform.isIOS || Platform.isAndroid) {
+      if (!await File(filePath).exists()) {
+        return OpenResult(ResultType.fileNotFound,
+            message: 'File $filePath does not exist');
       }
-      return OpenResult(
-          type: _result == 0 ? ResultType.done : ResultType.error,
-          message: _result == 0
-              ? "done"
-              : _result == -1
-                  ? "This operating system is not currently supported"
-                  : "there are some errors when open $filePath${Platform.isWindows ? "   HINSTANCE=$_windowsResult" : ""}");
+
+      Map<String, String?> map = {
+        "file_path": filePath,
+        "mime_type": mimeType,
+        "uti": uti,
+      };
+      final result = await _channel.invokeMethod('open_app_file', map);
+      final resultMap = json.decode(result) as Map<String, dynamic>;
+      return OpenResult.fromJson(resultMap);
     }
 
-    Map<String, String?> map = {
-      "file_path": filePath!,
-      "type": type,
-      "uti": uti,
-    };
-    final _result = await _channel.invokeMethod('open_app_file', map);
-    final resultMap = json.decode(_result) as Map<String, dynamic>;
-    return OpenResult.fromJson(resultMap);
+    int result;
+    String? errorExtra;
+    if (Platform.isMacOS) {
+      result = mac.system(['open', '$filePath']);
+    } else if (Platform.isLinux) {
+      var filePathLinux = Uri.file(filePath);
+      result = linux.system(['xdg-open', filePathLinux.toString()]);
+    } else if (Platform.isWindows) {
+      final windowsResult = windows.shellExecute('open', filePath);
+      errorExtra = ': HINSTANCE=$windowsResult';
+      result = windowsResult <= 32 ? 1 : 0;
+    } else {
+      result = -1;
+    }
+    return OpenResult(result == 0 ? ResultType.done : ResultType.error,
+        message: result == 0
+            ? 'done'
+            : result == -1
+                ? 'This operating system is not currently supported'
+                : 'Error while opening $filePath${errorExtra ?? ''}');
   }
 }
