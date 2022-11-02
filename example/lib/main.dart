@@ -1,5 +1,9 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
+
+import 'package:open_app_file_example/native_utils.dart'
+    if (dart.library.html) 'package:open_app_file_example/web_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart';
 
@@ -19,6 +23,10 @@ class _MyAppState extends State<MyApp> {
   OpenResult? _openResult;
 
   Future<String> _downloadFile(String url, String filename) async {
+    if (kIsWeb) {
+      // on the web there's no reason to download the file
+      return url;
+    }
     String dir = (await getTemporaryDirectory()).path;
     File targetFile = File('$dir/$filename');
     final httpClient = Client();
@@ -32,13 +40,6 @@ class _MyAppState extends State<MyApp> {
     var r = Random();
     return String.fromCharCodes(
         List.generate(length, (index) => r.nextInt(26) + 89));
-  }
-
-  Future<String> _generateRandomTextFile() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final File file = File('${directory.path}/test.txt');
-    await file.writeAsString(_generateRandomString(30));
-    return file.path;
   }
 
   Future<void> _openFile(String filePath) async {
@@ -71,9 +72,10 @@ class _MyAppState extends State<MyApp> {
               ElevatedButton(
                 child: Text('Open generated file'),
                 onPressed: () async {
-                  _openFile(await _generateRandomTextFile());
+                  _openFile(await createTextFile(_generateRandomString(30)));
                 },
               ),
+              SizedBox(height: 8.0,),
               ElevatedButton(
                 child: Text('Download and open image'),
                 onPressed: () async {
@@ -81,18 +83,19 @@ class _MyAppState extends State<MyApp> {
                       'https://picsum.photos/200/300', 'test.jpg'));
                 },
               ),
+              SizedBox(height: 8.0,),
               ElevatedButton(
-                child: Text('Download and open calendar event'),
-                onPressed: () async {
-                  _openFile(await _downloadFile(
-                      'https://raw.githubusercontent.com/yendoplan/open_app_file/master/example/files/test.ics',
-                      'test.ics'));
-                },
-              ),
+                  child: Text('Download and open calendar event'),
+                  onPressed: () async {
+                    _openFile(await _downloadFile(
+                        'https://raw.githubusercontent.com/yendoplan/open_app_file/master/example/files/test.ics',
+                        'test.ics'));
+                  }),
+              SizedBox(height: 8.0,),
               ElevatedButton(
                 child: Text('Open non-existent file'),
                 onPressed: () async {
-                  _openFile('/sdcard/asdf.qwert');
+                  _openFile('asdf.qwert');
                 },
               ),
             ],

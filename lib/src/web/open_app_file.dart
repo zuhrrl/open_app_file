@@ -6,11 +6,14 @@ import 'web.dart' as web;
 class OpenAppFile {
   OpenAppFile._();
 
-  static Future<OpenResult> open(String? filePath,
+  /// Web [open] implementation generates a dynamic [AnchorElement]
+  /// and tries to download the associated file. The downside is that
+  /// it's not possible to have meaningful errors for requested files,
+  /// so the result will always be [ResultType.done] regardless of the
+  /// file availability and type.
+  static Future<OpenResult> open(String filePath,
       {String? mimeType, String? uti}) async {
-    final error = await web.open("file://$filePath");
-    return OpenResult(error == null ? ResultType.done : ResultType.error,
-        message:
-            error == null ? "done" : "Error opening file $filePath: $error");
+    web.open(filePath, filePath.split('/').last);
+    return OpenResult(ResultType.done);
   }
 }

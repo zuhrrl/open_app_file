@@ -1,13 +1,11 @@
-import 'dart:async';
-
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
 
-Future<dynamic> open(String uri) async {
-  try {
-    await window.resolveLocalFileSystemUrl(uri);
-    return null;
-  } catch (e) {
-    return e;
-  }
+void open(String uri, String filename) {
+  AnchorElement(
+    href: uri,
+  )
+    ..setAttribute('download', filename)
+    ..setAttribute('target', '_blank')
+    ..click();
 }

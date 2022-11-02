@@ -1,10 +1,12 @@
 ## 4.0.0
-* BREAKING CHANGE: parameter `type` renamed to `mimeType`
-* BREAKING CHANGE: `filePath` parameter is now not nullable instead of null value check with assert 
+* BREAKING CHANGE: parameter `type` renamed to `mimeType`.
+* BREAKING CHANGE: `filePath` parameter is now not nullable instead of null value check with assert. 
 * BREAKING CHANGE: `linuxDesktopName` parameter removed, will always use `xdg-open` on Linux. If there's a reason to use anything else, there should be a way to detect xdg availability and perhaps it should be a part of the library.
 * BREAKING CHANGE: `linuxByProcess` parameter removed, will always use FFI to open files on Linux. The reasoning behind its existence is unclear, if there's a demand for the Process alternative, the use cases should be properly documented.  
-* provided clearer explanations of `mimeType` and `uti` parameters
-* code cleanup and refactoring
+* BREAKING CHANGE: web implementation changed in favor of creating a dynamic `AnchorElement` with provided file URL and trying to download the associated file by clicking on it.
+* Provided clearer explanations of `mimeType` and `uti` parameters.
+* Extended example to cover basic cases for different platforms.
+* Code cleanup and refactoring.
 ## 3.2.4
 * allowing all app-scoped paths (also external) on Android (credit [@joymyr](https://github.com/joymyr))
 * fixed .podspec file name (credit [@Fernandomr88](https://github.com/Fernandomr88) and [@ictsolved](https://github.com/ictsolved))
