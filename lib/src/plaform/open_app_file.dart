@@ -19,7 +19,11 @@ class OpenAppFile {
   /// builds the list of apps that can handle viewing/editing of the provided
   /// file:
   /// - [mimeType] overrides the type inferred from the file extension on
-  /// Android, has no effect on any other platform
+  /// Android, has no effect on any other platform. This parameter is passed
+  /// directly to the [Intent.type] property of the produced Intent.
+  /// To learn more about how Android system treats MIME types in intents,
+  /// check official documentation
+  /// https://developer.android.com/guide/components/intents-filters
   /// - [uti] to provide UTI on iOS, no effect on any other platform
   static Future<OpenResult> open(String filePath,
       {String? mimeType, String? uti}) async {

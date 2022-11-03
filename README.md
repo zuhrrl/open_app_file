@@ -11,7 +11,8 @@ The library is forked from [open_file](https://github.com/crazecoder/open_file) 
 
 This version:
 * does not include REQUEST_INSTALL_PACKAGES permission on Android, so cannot install .apk's
-* does not include READ_EXTERNAL_STORAGE permission on Android, so is made for opening files located in the app working directory. It is still possible to request storage permission separately and then open the file with this library.
+* does not include READ_EXTERNAL_STORAGE permission on Android
+* has completely rewritten Android implementation for more robust permission checks
 * has deprecated explicit list of MIME types, UTI's, and Linux launch options
 * web implementation is changed (see below)
 
@@ -36,6 +37,18 @@ OpenAppFile.open('/sdcard/example.txt');
 // help the system to provide correct response to your request.
 OpenAppFile.open('/sdcard/example.abc', mimeType: 'text/plain', uti: 'public.plain-text');
 ```
+
+## Behavior on Android
+
+While the main purpose of the plugin is opening files owned by the host app, it is possible 
+to open any file even considering Android 11 scoped storage limitations 
+([see official docs](https://developer.android.com/about/versions/11/privacy/storage)).
+The plugin will not provide any tools for requesting permissions to prevent declaring
+them in the Manifest for apps that don't need to handle this case. 
+An attempt to open a file with no permissions granted will produce an appropriate result 
+(`ResultType.permissionDenied`).
+
+See more details and instructions on how to test permission conditions in the example app.
 
 ## Behavior on web
 

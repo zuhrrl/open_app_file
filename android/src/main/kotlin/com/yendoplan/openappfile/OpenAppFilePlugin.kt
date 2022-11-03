@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -17,7 +16,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import org.json.JSONObject
 import java.io.File
-import java.io.IOException
+import java.io.FileNotFoundException
 
 fun Map<String, Any?>.toJsonString(): String {
     return JSONObject().also {
@@ -37,15 +36,16 @@ class OpenAppFilePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
             val filePath = call.argument<String>("file_path")
                 ?: throw RuntimeException("file_path cannot be null")
             val file = File(filePath)
-            if (pathRequiresPermission(file) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
-                !isMediaStorePath(filePath) && !Environment.isExternalStorageManager()
-            ) {
-                result.success(
-                    makeResult(
-                        -3,
-                        "Permission denied: android.Manifest.permission.MANAGE_EXTERNAL_STORAGE"
-                    )
-                )
+            try {
+                // This seems the most straightforward solution to checking if we have
+                // read access to the file: just try to peek in it (opposed to convoluted
+                // solution of the original `open_file` library where they maintain
+                // a whole list of accessible locations for different permission conditions).
+                // use() call in the end makes sure that the buffer is closed nicely
+                // if no exception has been thrown.
+                file.bufferedReader(bufferSize = 1).use { }
+            } catch (e: FileNotFoundException) {
+                result.success(makeResult(-3, "No file access permission."))
                 return
             }
             val mimeType = call.argument<String?>("mime_type") ?: detectMimeType(filePath)
@@ -58,20 +58,20 @@ class OpenAppFilePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
     private fun startActivity(file: File, mimeType: String?): String {
         val context =
             activity?.applicationContext ?: throw RuntimeException("Not attached to context")
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-        intent.addCategory(Intent.CATEGORY_DEFAULT)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            val packageName = context.packageName
-            val uri = FileProvider.getUriForFile(
-                context,
-                "$packageName.fileProvider.com.yendoplan.openappfile",
-                file
-            )
-            intent.setDataAndType(uri, mimeType)
-        } else {
-            intent.setDataAndType(Uri.fromFile(file), mimeType)
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+            addCategory(Intent.CATEGORY_DEFAULT)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                val uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.fileProvider.com.yendoplan.openappfile",
+                    file
+                )
+                setDataAndType(uri, mimeType)
+            } else {
+                setDataAndType(Uri.fromFile(file), mimeType)
+            }
         }
 
         try {
@@ -94,43 +94,6 @@ class OpenAppFilePlugin : MethodCallHandler, FlutterPlugin, ActivityAware {
     private fun detectMimeType(filePath: String): String {
         return MimeTypeMap.getSingleton()
             .getMimeTypeFromExtension(filePath.substringAfterLast('.', "").lowercase()) ?: "*/*"
-    }
-
-    private fun isMediaStorePath(filePath: String): Boolean {
-        return listOf(
-            "/DCIM/",
-            "/Pictures/",
-            "/Movies/",
-            "/Alarms/",
-            "/Audiobooks/",
-            "/Music/",
-            "/Notifications/",
-            "/Podcasts/",
-            "/Ringtones/",
-            "/Download/"
-        ).any {
-            filePath.contains(it)
-        }
-    }
-
-    private fun pathRequiresPermission(file: File): Boolean {
-        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            false
-        } else try {
-            val context =
-                activity?.applicationContext ?: throw RuntimeException("Not attached to context")
-            val fileCanonicalPath = file.canonicalPath
-            return !listOfNotNull(
-                File(context.applicationInfo.dataDir).canonicalPath,
-                context.externalCacheDir?.canonicalPath,
-                context.getExternalFilesDir(null)?.canonicalPath
-            ).any {
-                fileCanonicalPath.startsWith(it)
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            true
-        }
     }
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPluginBinding) {

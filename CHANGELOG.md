@@ -1,3 +1,6 @@
+## 4.0.1
+* A lot more straightforward Android library implementation
+* Extended example for testing Android permissions and different file locations
 ## 4.0.0
 * BREAKING CHANGE: parameter `type` renamed to `mimeType`.
 * BREAKING CHANGE: `filePath` parameter is now not nullable instead of null value check with assert. 
