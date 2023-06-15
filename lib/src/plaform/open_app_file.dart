@@ -25,8 +25,12 @@ class OpenAppFile {
   /// check official documentation
   /// https://developer.android.com/guide/components/intents-filters
   /// - [uti] to provide UTI on iOS, no effect on any other platform
-  static Future<OpenResult> open(String filePath,
-      {String? mimeType, String? uti}) async {
+  static Future<OpenResult> open(
+    String filePath, {
+    String? mimeType,
+    String? uti,
+    bool locate = false,
+  }) async {
     if (Platform.isIOS || Platform.isAndroid) {
       if (!await File(filePath).exists()) {
         return OpenResult(ResultType.fileNotFound,
@@ -46,7 +50,7 @@ class OpenAppFile {
     int result;
     String? errorExtra;
     if (Platform.isMacOS) {
-      result = mac.system(['open', '$filePath']);
+      result = mac.system(['open', if (locate) '-R', '$filePath']);
     } else if (Platform.isLinux) {
       var filePathLinux = Uri.file(filePath);
       result = linux.system(['xdg-open', filePathLinux.toString()]);
